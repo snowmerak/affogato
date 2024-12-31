@@ -79,7 +79,7 @@ func TestParseLog(t *testing.T) {
 	}
 
 	for i, input := range testInput {
-		output, err := redis.ParseLog(input)
+		output, err := redis.ParseLog([]byte(input))
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}

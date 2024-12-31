@@ -1,9 +1,9 @@
 package redis
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -43,14 +43,14 @@ const (
 	StepMessage
 )
 
-func ParseLog(line string) (log Log, err error) {
+func ParseLog(line []byte) (log Log, err error) {
 	step := StepStart
 	prevIdx := 0
 	for i := range line {
 		switch step {
 		case StepStart:
 			if line[i] == ':' {
-				log.PID, err = strconv.Atoi(line[prevIdx:i])
+				log.PID, err = strconv.Atoi(string(line[prevIdx:i]))
 				if err != nil {
 					err = fmt.Errorf("failed to parse PID: %w", err)
 					return
@@ -73,8 +73,8 @@ func ParseLog(line string) (log Log, err error) {
 		case StepRole:
 			switch line[i] {
 			case '#', '*':
-				timeValue := strings.TrimSpace(line[prevIdx:i])
-				log.Time, err = time.Parse(TimeFormat, timeValue)
+				timeValue := bytes.TrimSpace(line[prevIdx:i])
+				log.Time, err = time.Parse(TimeFormat, string(timeValue))
 				if err != nil {
 					err = fmt.Errorf("failed to parse time: %w", err)
 					return
@@ -84,6 +84,9 @@ func ParseLog(line string) (log Log, err error) {
 				step = StepTime
 				prevIdx = i + 2
 			}
+		default:
+			err = fmt.Errorf("unexpected character: %c", line[i])
+			return
 		}
 	}
 
@@ -92,7 +95,7 @@ func ParseLog(line string) (log Log, err error) {
 		return
 	}
 
-	log.Message = line[prevIdx:]
+	log.Message = string(line[prevIdx:])
 
 	return log, nil
 }
