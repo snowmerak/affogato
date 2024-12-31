@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"time"
@@ -73,7 +72,7 @@ func ParseLog(line []byte) (log Log, err error) {
 		case StepRole:
 			switch line[i] {
 			case '#', '*':
-				timeValue := bytes.TrimSpace(line[prevIdx:i])
+				timeValue := line[prevIdx : i-1]
 				log.Time, err = time.Parse(TimeFormat, string(timeValue))
 				if err != nil {
 					err = fmt.Errorf("failed to parse time: %w", err)
@@ -85,8 +84,6 @@ func ParseLog(line []byte) (log Log, err error) {
 				prevIdx = i + 2
 			}
 		default:
-			err = fmt.Errorf("unexpected character: %c", line[i])
-			return
 		}
 	}
 
