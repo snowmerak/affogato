@@ -2,7 +2,10 @@ module github.com/snowmerak/affogato
 
 go 1.23.4
 
-require github.com/docker/docker v27.4.1+incompatible
+require (
+	github.com/docker/docker v27.4.1+incompatible
+	github.com/valkey-io/valkey-go v1.0.52
+)
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
